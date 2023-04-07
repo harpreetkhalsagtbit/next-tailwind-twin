@@ -158,7 +158,7 @@ const StyledComboBoxButton = styled(Combobox.Button)(() => [comboBoxButtonStyle]
 
 /** Combobox Options Container Style */
 const optionsContainerStyle = tw`
-    z-10
+    z-50
     absolute
     p-0
 

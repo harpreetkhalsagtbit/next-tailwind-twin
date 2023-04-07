@@ -1,41 +1,35 @@
 import React from 'react';
-import { Fragment, useState, useMemo } from 'react';
+import { Fragment, useState } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
+import { FaCaretDown } from 'react-icons/fa';
 
-import ListItem from './ListItem';
-import ListButton from './ListButton';
-import { comparator } from '../helpers/utils';
+function classNames(...classes) {
+	return classes.filter(Boolean).join(' ');
+}
 
-import StyledDropdownContainer, { StyledListbox } from './Dropdown.style';
-
-const DropDown = ({ options = [], onChange, placeHolder = 'Select All' }) => {
-	// sort items by position mentioned in the option list provided
-	const sortedOptions = useMemo(() => comparator(options, 'position'), [options]);
-
-	const getDefault = () => sortedOptions.find((option) => option.isDefault) || {};
-	// get and set default value if any
-	const [selectedItem, setSelectedItem] = useState(getDefault);
-
-	// Listbox change handler
-	const onListBoxChange = (index) => {
-		if (onChange && typeof onChange === 'function') {
-			onChange(index);
-		}
-		setSelectedItem(index);
-	};
-
+export default function DropDown({
+	options = [{ id: 0, value: 'All' }],
+	onChange,
+	selectedIndex = 0,
+}) {
+	const [selected, setSelected] = useState(options[selectedIndex]);
+	function onListBoxChange(index) {
+		setSelected(index);
+		onChange(index);
+	}
 	return (
-		<Listbox value={selectedItem.value || ''} onChange={onListBoxChange}>
+		<Listbox value={selected.value} onChange={onListBoxChange}>
 			{({ open }) => (
 				<>
-					<StyledDropdownContainer>
-						{/* Styled - Listbox.Button */}
-						<StyledListbox.Button $open={open}>
-							<ListButton
-								value={selectedItem.display_name}
-								placeHolder={placeHolder}
-							/>
-						</StyledListbox.Button>
+					<div className="relative">
+						<Listbox.Button className="relative w-full bg-white border border-gray-300 rounded hover:shadow-lg pl-2 pr-10 py-2 focus:bg-gray-100 text-sm">
+							<span className="flex items-center">
+								<span className="ml-3">{selected.value}</span>
+							</span>
+							<span className="ml-3 absolute inset-y-0 right-0 flex items-center pr-2 ">
+								<FaCaretDown></FaCaretDown>
+							</span>
+						</Listbox.Button>
 
 						<Transition
 							show={open}
@@ -44,38 +38,34 @@ const DropDown = ({ options = [], onChange, placeHolder = 'Select All' }) => {
 							leaveFrom="opacity-100"
 							leaveTo="opacity-0"
 						>
-							{/* Styled Listbox.Options */}
-							<StyledListbox.Options>
-								{sortedOptions.map((option) => {
-									const { name, isDisabled, display_name = '' } = option;
-
-									return (
+							<Listbox.Options className="z-10 absolute border right-0 mt-1 w-full bg-white shadow-lg rounded-md py-1 text-sm min-w-max">
+								{options.map((option) => (
+									<Listbox.Option
+										key={option.id}
+										value={option}
+										className={({ active, selected }) =>
+											classNames(
+												selected
+													? 'text-white bg-accent-blue'
+													: active
+													? 'bg-gray-100'
+													: 'text-gray-700',
+												'relative pl-3 pr-9'
+											)
+										}
+									>
 										<>
-											{/* Styled Listbox.Option */}
-											<StyledListbox.Option
-												key={name}
-												value={option}
-												disabled={isDisabled}
-											>
-												{({ active }) => (
-													<ListItem
-														active={active}
-														selected={selectedItem.name === option.name}
-														value={display_name}
-														disabled={isDisabled}
-													/>
-												)}
-											</StyledListbox.Option>
+											<div className="flex items-center py-0.5">
+												<span className="ml-3 block">{option.value}</span>
+											</div>
 										</>
-									);
-								})}
-							</StyledListbox.Options>
+									</Listbox.Option>
+								))}
+							</Listbox.Options>
 						</Transition>
-					</StyledDropdownContainer>
+					</div>
 				</>
 			)}
 		</Listbox>
 	);
-};
-
-export default DropDown;
+}
