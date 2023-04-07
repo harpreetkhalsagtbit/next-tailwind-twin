@@ -16,7 +16,7 @@ const defaultSwitch = tw`
      border
      border-transparent
 
-     transition-colors 
+     transition-colors
      duration-200
      ease-in-out
      focus:outline-none
